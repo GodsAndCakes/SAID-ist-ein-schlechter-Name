@@ -28,13 +28,15 @@ type
     property Parent: ICategory read GetParent;
   end;
 
-  IArticle = interface
+  IGoogleArticle = interface
     ['{0C06D550-31BB-45C2-A5A1-F9DE920C089F}']
+    function GetCaption: String;
     function GetText: String;
     function GetSource: TSource;
     function GetLanguage: TLanguage;
     function GetCategories(const AIndex: Integer): ICategory;
     function GetCategoryCount: Integer;
+    property Caption: String read GetCaption;
     property Text: String read GetText;
     property Source: TSource read GetSource;
     property Language: TLanguage read GetLanguage;
@@ -42,11 +44,11 @@ type
     property CategoryCount: Integer read GetCategoryCount;
   end;
 
-  IArticles = interface
+  IGoogleArticles = interface
     ['{F56CB0F1-9D1B-4CB2-8C91-9FB24F1E1EE9}']
-    function GetArticles(const AIndex: Integer): IArticle;
+    function GetArticles(const AIndex: Integer): IGoogleArticle;
     function GetCount: Integer;
-    property Articles[const AIndex: Integer]: IArticle read GetArticles;
+    property Articles[const AIndex: Integer]: IGoogleArticle read GetArticles;
     property Count: Integer read GetCount;
   end;
 

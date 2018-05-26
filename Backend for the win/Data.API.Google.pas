@@ -21,9 +21,18 @@ type
     property TextType: TTextType read GetTextType;
   end;
 
-  TTag = (taNOUN, taVERB);
+  TTag = (taNOUN, taVERB, taPRON, taPRT, taPUNCT, taDET, taADJ, taADV);
 
-  TTagTypeHelper = record helper for TTextType
+  TTagHelper = record helper for TTag
+    constructor Create(const ATagCode: String);
+    function ToString: String;
+  end;
+
+  TLabel = (laNSUBJ, taDOBJ, taROOT, laP, laDET, laAMOD, laADVMOD);
+
+  TLabelHelper = record helper for TLabel
+    constructor Create(const ALabelCode: String);
+    function ToString: String;
   end;
 
   IToken = interface
@@ -62,6 +71,64 @@ begin
   case Self of
     ttPlainText:
       Result := 'PLAIN_TEXT';
+  end;
+end;
+
+{ TTagHelper }
+
+constructor TTagHelper.Create(const ATagCode: String);
+begin
+  Self := TTag(IndexText(ATagCode, ['NOUN', 'VERB', 'PRON', 'PRT', 'PUNCT',
+    'DET', 'ADJ', 'ADV']));
+end;
+
+function TTagHelper.ToString: String;
+begin
+  case Self of
+    taNOUN:
+      Result := 'NOUN';
+    taVERB:
+      Result := 'VERB';
+    taPRON:
+      Result := 'PRON';
+    taPRT:
+      Result := 'PRT';
+    taPUNCT:
+      Result := 'PUNCT';
+    taDET:
+      Result := 'DET';
+    taADJ:
+      Result := 'ADJ';
+    taADV:
+      Result := 'ADV';
+  end;
+end;
+
+{ TLabelHelper }
+
+constructor TLabelHelper.Create(const ALabelCode: String);
+begin
+  Self := TLabel(IndexText(ALabelCode, ['NSUBJ', 'DOBJ', 'ROOT', 'P', 'DET',
+    'AMOD', 'ADVMOD']));
+end;
+
+function TLabelHelper.ToString: String;
+begin
+  case Self of
+    laNSUBJ:
+      Result := 'NSUBJ';
+    taDOBJ:
+      Result := 'DOBJ';
+    taROOT:
+      Result := 'ROOT';
+    laP:
+      Result := 'P';
+    laDET:
+      Result := 'DET';
+    laAMOD:
+      Result := 'AMOD';
+    laADVMOD:
+      Result := 'ADVMOD';
   end;
 end;
 
