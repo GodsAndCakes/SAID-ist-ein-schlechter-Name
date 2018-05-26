@@ -1,8 +1,6 @@
-unit Core.Articles.MetaInfo;
+unit Data.API.iPool;
 
 interface
-
-
 
 implementation
 

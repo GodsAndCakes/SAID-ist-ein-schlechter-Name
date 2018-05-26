@@ -13,11 +13,19 @@ type
     function ToString: String;
   end;
 
-  TLanguage = (laENG, laGER);
+  TLanguage = (laEN, laDE);
 
   TLanguageHelper = record helper for TLanguage
     constructor Create(const ALanguageCode: String);
     function ToString: String;
+  end;
+
+  ICategory = interface
+    ['{7306F1EE-9108-4FD6-8A44-69E75E9E1EAE}']
+    function GetName: String;
+    function GetParent: ICategory;
+    property Name: String read GetName;
+    property Parent: ICategory read GetParent;
   end;
 
   IArticle = interface
@@ -25,9 +33,13 @@ type
     function GetText: String;
     function GetSource: TSource;
     function GetLanguage: TLanguage;
+    function GetCategories(const AIndex: Integer): ICategory;
+    function GetCategoryCount: Integer;
     property Text: String read GetText;
     property Source: TSource read GetSource;
     property Language: TLanguage read GetLanguage;
+    property Categories[const AIndex: Integer]: ICategory read GetCategories;
+    property CategoryCount: Integer read GetCategoryCount;
   end;
 
   IArticles = interface
@@ -65,9 +77,9 @@ end;
 function TLanguageHelper.ToString: String;
 begin
   case Self of
-    laENG:
+    laEN:
       Result := 'en';
-    laGER:
+    laDE:
       Result := 'de';
   end;
 end;

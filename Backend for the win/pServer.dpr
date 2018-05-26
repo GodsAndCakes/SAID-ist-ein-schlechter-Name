@@ -8,7 +8,8 @@ uses
   Data.User.Preferences in 'Data.User.Preferences.pas',
   Data.Articles in 'Data.Articles.pas',
   Backend.MARSServer in 'Backend.MARSServer.pas',
-  Backend.Resource in 'Backend.Resource.pas';
+  Backend.Resource in 'Backend.Resource.pas',
+  Data.API.iPool in 'Data.API.iPool.pas';
 
 var
   LServer: TBackendMARSServer;
