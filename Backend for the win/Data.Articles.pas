@@ -52,6 +52,23 @@ type
     property Count: Integer read GetCount;
   end;
 
+  IiPoolArticle = interface
+    function GetHeading: string;
+    function GetContent: string;
+    function GetPublisher: string;
+    property Heading: string read GetHeading;
+    property Content: string read GetContent;
+    property Publisher: string read GetPublisher;
+  end;
+
+  IiPoolArticles = interface
+    ['{F56CB0F1-9D1B-4CB2-8C91-9FB24F1E1EE9}']
+    function GetArticles(const AIndex: Integer): IiPoolArticle;
+    function GetCount: Integer;
+    property Articles[const AIndex: Integer]: IiPoolArticle read GetArticles;
+    property Count: Integer read GetCount;
+  end;
+
 implementation
 
 { TSourceHelper }
