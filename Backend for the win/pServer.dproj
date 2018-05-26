@@ -114,16 +114,13 @@
         <DCCReference Include="Backend.Resource.pas"/>
         <DCCReference Include="Data.API.iPool.pas"/>
         <DCCReference Include="Data.API.Google.pas"/>
-<<<<<<< HEAD
         <DCCReference Include="Core.Articles.Gen.pas"/>
-=======
         <DCCReference Include="Backend.iPool.DM.pas">
             <Form>DMiPool</Form>
-            <FormType>dfm</FormType>
             <DesignClass>TDataModule</DesignClass>
         </DCCReference>
         <DCCReference Include="Backend.iPool.Connector.pas"/>
->>>>>>> ec98a49738f16ca72b470779c13d6bee1791c95f
+        <DCCReference Include="Core.Articles.MetaInfo.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
