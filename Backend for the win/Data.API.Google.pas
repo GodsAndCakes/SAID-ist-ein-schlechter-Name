@@ -13,31 +13,39 @@ type
     function ToString: String;
   end;
 
-  TQuery = record
-  private
-    FText: String;
-    FTextType: TTextType;
-  public
-    property Text: String read FText;
-    property TextType: TTextType read FTextType default ttPlainText;
-    constructor Create(const AText: String;
-      const ATextType: TTextType = ttPlainText);
+  IQuery = interface
+    ['{9DD2DF53-37BB-46BE-B91A-56613FA5132C}']
+    function GetText: String;
+    function GetTextType: TTextType;
+    property Text: String read GetText;
+    property TextType: TTextType read GetTextType;
   end;
 
-  TToken = record
+  TTag = (taNOUN, taVERB);
 
+  TTagTypeHelper = record helper for TTextType
   end;
 
-  TResponse = record
-  private
-    FTokens: TArray<TToken>;
-  public
-    property Tokens: TArray<TToken> read FTokens;
-    constructor Create(const ATokens: TArray<TToken>);
+  IToken = interface
+    ['{853F36B0-8698-4A7A-8DEB-0036A4F9BFAB}']
+    function GetLemma: String;
+    function GetTag: TTag;
+    function GetDependencies(const AIndex: Integer): IToken;
+    property Lemma: String read GetLemma;
+    property Tag: TTag read GetTag;
+    property Dependencies[const AIndex: Integer]: IToken read GetDependencies;
+  end;
+
+  IResponse = interface
+    ['{FE12CEDF-AB5F-430A-979B-3DC5ED37FE43}']
+    function GetTokens(const AIndex: Integer): IToken;
+    property Tokens[const AIndex: Integer]: IToken read GetTokens;
   end;
 
   IGoogleCloudAPI = interface
-    property Query[const AQuery: TQuery]: TResponse;
+    ['{D5EFA4BC-47A7-4117-B7A6-C3C60238662D}']
+    function GetQuery(const AQuery: IQuery): IResponse;
+    property Query[const AQuery: IQuery]: IResponse read GetQuery;
   end;
 
 implementation
@@ -55,14 +63,6 @@ begin
     ttPlainText:
       Result := 'PLAIN_TEXT';
   end;
-end;
-
-{ TQuery }
-
-constructor TQuery.Create(const AText: String; const ATextType: TTextType);
-begin
-  FText := AText;
-  FTextType := ATextType;
 end;
 
 end.
