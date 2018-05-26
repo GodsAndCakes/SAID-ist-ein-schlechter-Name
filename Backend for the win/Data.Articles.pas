@@ -59,16 +59,16 @@ end;
 
 constructor TLanguageHelper.Create(const ALanguageCode: String);
 begin
-  Self := TLanguage(IndexText(ALanguageCode, ['ENG', 'GER']));
+  Self := TLanguage(IndexText(ALanguageCode, ['en', 'de']));
 end;
 
 function TLanguageHelper.ToString: String;
 begin
   case Self of
     laENG:
-      Result := 'ENG';
+      Result := 'en';
     laGER:
-      Result := 'GER';
+      Result := 'de';
   end;
 end;
 
