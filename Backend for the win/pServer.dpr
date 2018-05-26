@@ -10,7 +10,8 @@ uses
   Backend.MARSServer in 'Backend.MARSServer.pas',
   Backend.Resource in 'Backend.Resource.pas',
   Data.API.iPool in 'Data.API.iPool.pas',
-  Data.API.Google in 'Data.API.Google.pas';
+  Data.API.Google in 'Data.API.Google.pas',
+  Core.Articles.Gen in 'Core.Articles.Gen.pas';
 
 var
   LServer: TBackendMARSServer;

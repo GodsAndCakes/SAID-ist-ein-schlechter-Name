@@ -3,7 +3,7 @@ unit Data.Articles;
 interface
 
 uses
-  System.StrUtils;
+  System.StrUtils, System.Math;
 
 type
   TSource = (scDPA);
@@ -20,6 +20,13 @@ type
     function ToString: String;
   end;
 
+  TSentiment = (seNegative = -1, seNeutral = 0, sePositive = 1);
+
+  TSentimentHelper = record helper for TSentiment
+    constructor Create(const ASentimentAmount: Double);
+    function ToDouble: Double;
+  end;
+
   ICategory = interface
     ['{7306F1EE-9108-4FD6-8A44-69E75E9E1EAE}']
     function GetName: String;
@@ -31,15 +38,15 @@ type
   IGoogleArticle = interface
     ['{0C06D550-31BB-45C2-A5A1-F9DE920C089F}']
     function GetCaption: String;
-    function GetText: String;
     function GetSource: TSource;
     function GetLanguage: TLanguage;
+    function GetSentiment: TSentiment;
     function GetCategories(const AIndex: Integer): ICategory;
     function GetCategoryCount: Integer;
     property Caption: String read GetCaption;
-    property Text: String read GetText;
     property Source: TSource read GetSource;
     property Language: TLanguage read GetLanguage;
+    property Sentiment: TSentiment read GetSentiment;
     property Categories[const AIndex: Integer]: ICategory read GetCategories;
     property CategoryCount: Integer read GetCategoryCount;
   end;
@@ -53,12 +60,13 @@ type
   end;
 
   IiPoolArticle = interface
-    function GetHeading: string;
-    function GetContent: string;
-    function GetPublisher: string;
-    property Heading: string read GetHeading;
-    property Content: string read GetContent;
-    property Publisher: string read GetPublisher;
+    ['{07129344-C577-499D-BAFD-031052A6633F}']
+    function GetHeading: String;
+    function GetContent: String;
+    function GetPublisher: String;
+    property Heading: String read GetHeading;
+    property Content: String read GetContent;
+    property Publisher: String read GetPublisher;
   end;
 
   IiPoolArticles = interface
@@ -101,6 +109,18 @@ begin
     laDE:
       Result := 'de';
   end;
+end;
+
+{ TSentimentHelper }
+
+constructor TSentimentHelper.Create(const ASentimentAmount: Double);
+begin
+  Self := TSentiment(Sign(ASentimentAmount));
+end;
+
+function TSentimentHelper.ToDouble: Double;
+begin
+  Result := Ord(Self);
 end;
 
 end.

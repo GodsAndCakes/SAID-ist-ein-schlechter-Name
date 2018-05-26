@@ -35,13 +35,55 @@ type
     function ToString: String;
   end;
 
+  TNumber = (nuUNKNOWN, nuSINGULAR, nuPLURAL);
+
+  TNumberHelper = record helper for TNumber
+    constructor Create(const ANumberCode: String);
+    function ToString: String;
+  end;
+
+  TTense = (teUNKNOWN, tePRESENT);
+
+  TTenseHelper = record helper for TTense
+    constructor Create(const ATenseCode: String);
+    function ToString: String;
+  end;
+
+  TPerson = (peUNKNOWN, peFIRST, peSECOND, peTHIRD);
+
+  TPersonHelper = record helper for TPerson
+    constructor Create(const APersonCode: String);
+    function ToString: String;
+  end;
+
+  TGender = (geUNKNOWN, geMASCULINE, geFEMININE, geNEUTER);
+
+  TGenderHelper = record helper for TGender
+    constructor Create(const AGenderCode: String);
+    function ToString: String;
+  end;
+
   IToken = interface
     ['{853F36B0-8698-4A7A-8DEB-0036A4F9BFAB}']
+    function GetText: String;
+    function GetOffset: Integer;
     function GetLemma: String;
     function GetTag: TTag;
+    function GetLabel: TLabel;
+    function GetNumber: TNumber;
+    function GetTense: TTense;
+    function GetPerson: TPerson;
+    function GetGender: TGender;
     function GetDependencies(const AIndex: Integer): IToken;
+    property Text: String read GetText;
+    property Offset: Integer read GetOffset;
     property Lemma: String read GetLemma;
     property Tag: TTag read GetTag;
+    property &Label: TLabel read GetLabel;
+    property Number: TNumber read GetNumber;
+    property Tense: TTense read GetTense;
+    property Person: TPerson read GetPerson;
+    property Gender: TGender read GetGender;
     property Dependencies[const AIndex: Integer]: IToken read GetDependencies;
   end;
 
@@ -129,6 +171,87 @@ begin
       Result := 'AMOD';
     laADVMOD:
       Result := 'ADVMOD';
+  end;
+end;
+
+{ TNumberHelper }
+
+constructor TNumberHelper.Create(const ANumberCode: String);
+begin
+  Self := TNumber(IndexText(ANumberCode, ['NUMBER_UNKNOWN', 'SINGULAR',
+    'PLURAL']));
+end;
+
+function TNumberHelper.ToString: String;
+begin
+  case Self of
+    nuUNKNOWN:
+      Result := 'NUMBER_UNKNOWN';
+    nuSINGULAR:
+      Result := 'SINGULAR';
+    nuPLURAL:
+      Result := 'PLURAL';
+  end;
+end;
+
+{ TTenseHelper }
+
+constructor TTenseHelper.Create(const ATenseCode: String);
+begin
+  Self := TTense(IndexText(ATenseCode, ['TENSE_UNKNOWN', 'PRESENT']));
+end;
+
+function TTenseHelper.ToString: String;
+begin
+  case Self of
+    teUNKNOWN:
+      Result := 'TENSE_UNKNOWN';
+    tePRESENT:
+      Result := 'PRESENT';
+  end;
+end;
+
+{ TPersonHelper }
+
+constructor TPersonHelper.Create(const APersonCode: String);
+begin
+  Self := TPerson(IndexText(APersonCode, ['PERSON_UNKNOWN', 'FIRST', 'SECOND',
+    'THIRD']));
+end;
+
+function TPersonHelper.ToString: String;
+begin
+  case Self of
+    peUNKNOWN:
+      Result := 'PERSON_UNKNOWN';
+    peFIRST:
+      Result := 'FIRST';
+    peSECOND:
+      Result := 'SECOND';
+    peTHIRD:
+      Result := 'THIRD';
+  end;
+end;
+
+{ TGenderHelper }
+
+constructor TGenderHelper.Create(const AGenderCode: String);
+begin
+  Self := TGender(IndexText(AGenderCode, ['GENDER_UNKNOWN', 'MASCULINE',
+    'FEMININE', 'NEUTER']));
+end;
+
+function TGenderHelper.ToString: String;
+begin
+  case Self of
+    geUNKNOWN:
+      Result := 'GENDER_UNKNOWN';
+    geMASCULINE:
+      Result := 'MASCULINE';
+    geFEMININE:
+      Result := 'FEMININE';
+    geNEUTER:
+      Result := 'NEUTER';
   end;
 end;
 

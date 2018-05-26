@@ -114,6 +114,7 @@
         <DCCReference Include="Backend.Resource.pas"/>
         <DCCReference Include="Data.API.iPool.pas"/>
         <DCCReference Include="Data.API.Google.pas"/>
+        <DCCReference Include="Core.Articles.Gen.pas"/>
         <BuildConfiguration Include="Release">
             <Key>Cfg_2</Key>
             <CfgParent>Base</CfgParent>
