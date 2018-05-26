@@ -32,7 +32,7 @@ type
 
   IArticles = interface
     ['{F56CB0F1-9D1B-4CB2-8C91-9FB24F1E1EE9}']
-    function GetArticles(const AIndex: Integer): String;
+    function GetArticles(const AIndex: Integer): IArticle;
     function GetCount: Integer;
     property Articles[const AIndex: Integer]: IArticle read GetArticles;
     property Count: Integer read GetCount;
@@ -44,7 +44,7 @@ implementation
 
 constructor TSourceHelper.Create(const ASourceCode: String);
 begin
-  Self := TLanguage(IndexText(ASourceCode, ['DPA']));
+  Self := TSource(IndexText(ASourceCode, ['DPA']));
 end;
 
 function TSourceHelper.ToString: String;
