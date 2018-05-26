@@ -43,7 +43,7 @@ end;
 
 procedure TBackendMARSServer.Run;
 begin
-  FServer.Active := true;
+  FServer.Active := True;
 end;
 
 end.

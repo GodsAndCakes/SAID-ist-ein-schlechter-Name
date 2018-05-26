@@ -12,7 +12,7 @@ uses
   Data.API.iPool in 'Data.API.iPool.pas',
   Data.API.Google in 'Data.API.Google.pas',
   Core.Articles.Gen in 'Core.Articles.Gen.pas',
-  Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule},
+  Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule} ,
   Backend.iPool.Connector in 'Backend.iPool.Connector.pas',
   Core.Articles.MetaInfo in 'Core.Articles.MetaInfo.pas';
 
@@ -23,14 +23,17 @@ begin
   LServer := TBackendMARSServer.Create;
   try
     try
+      WriteLn('Starting server...');
       LServer.Run;
+      WriteLn('Server is running, press ENTER to exit.');
       Readln;
     except
       on E: Exception do
-        Writeln(E.ClassName, ': ', E.Message);
+        WriteLn(E.ClassName, ': ', E.Message);
     end;
   finally
     FreeAndNil(LServer);
+    WriteLn('Shutting down server...');
   end;
 
 end.

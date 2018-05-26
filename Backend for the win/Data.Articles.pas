@@ -3,7 +3,7 @@ unit Data.Articles;
 interface
 
 uses
-  System.StrUtils, System.Math;
+  System.StrUtils, System.Math, System.Classes;
 
 type
   TSource = (scDPA);
@@ -27,27 +27,19 @@ type
     function ToDouble: Double;
   end;
 
-  ICategory = interface
-    ['{7306F1EE-9108-4FD6-8A44-69E75E9E1EAE}']
-    function GetName: String;
-    function GetParent: ICategory;
-    property Name: String read GetName;
-    property Parent: ICategory read GetParent;
-  end;
-
   IGoogleArticle = interface
     ['{0C06D550-31BB-45C2-A5A1-F9DE920C089F}']
     function GetCaption: String;
     function GetSource: TSource;
     function GetLanguage: TLanguage;
     function GetSentiment: TSentiment;
-    function GetCategories(const AIndex: Integer): ICategory;
+    function GetCategories(const AIndex: Integer): String;
     function GetCategoryCount: Integer;
     property Caption: String read GetCaption;
     property Source: TSource read GetSource;
     property Language: TLanguage read GetLanguage;
     property Sentiment: TSentiment read GetSentiment;
-    property Categories[const AIndex: Integer]: ICategory read GetCategories;
+    property Categories[const AIndex: Integer]: String read GetCategories;
     property CategoryCount: Integer read GetCategoryCount;
   end;
 
