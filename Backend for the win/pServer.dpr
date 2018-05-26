@@ -9,7 +9,8 @@ uses
   Data.Articles in 'Data.Articles.pas',
   Backend.MARSServer in 'Backend.MARSServer.pas',
   Backend.Resource in 'Backend.Resource.pas',
-  Data.API.iPool in 'Data.API.iPool.pas';
+  Data.API.iPool in 'Data.API.iPool.pas',
+  Data.API.Google in 'Data.API.Google.pas';
 
 var
   LServer: TBackendMARSServer;
