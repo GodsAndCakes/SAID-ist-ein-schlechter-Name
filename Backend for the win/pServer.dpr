@@ -11,7 +11,12 @@ uses
   Backend.Resource in 'Backend.Resource.pas',
   Data.API.iPool in 'Data.API.iPool.pas',
   Data.API.Google in 'Data.API.Google.pas',
+<<<<<<< HEAD
   Core.Articles.Gen in 'Core.Articles.Gen.pas';
+=======
+  Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule},
+  Backend.iPool.Connector in 'Backend.iPool.Connector.pas';
+>>>>>>> ec98a49738f16ca72b470779c13d6bee1791c95f
 
 var
   LServer: TBackendMARSServer;
