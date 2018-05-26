@@ -6,7 +6,7 @@ uses
   System.StrUtils;
 
 type
-  TTextType = (ttPlainText);
+  TTextType = (ttPLAINTEXT);
 
   TTextTypeHelper = record helper for TTextType
     constructor Create(const ATextTypeCode: String);
@@ -63,6 +63,13 @@ type
     function ToString: String;
   end;
 
+  TCase = (csUNKNOWN, csAKKUSATIVE, csDATIVE, csGENITIVE, csNOMINATIVE);
+
+  TCaseHelper = record helper for TCase
+    constructor Create(const ACaseCode: String);
+    function ToString: String;
+  end;
+
   IToken = interface
     ['{853F36B0-8698-4A7A-8DEB-0036A4F9BFAB}']
     function GetText: String;
@@ -74,7 +81,8 @@ type
     function GetTense: TTense;
     function GetPerson: TPerson;
     function GetGender: TGender;
-    function GetDependencies(const AIndex: Integer): IToken;
+    function GetCase: TCase;
+    function GetDependency: IToken;
     property Text: String read GetText;
     property Offset: Integer read GetOffset;
     property Lemma: String read GetLemma;
@@ -84,13 +92,26 @@ type
     property Tense: TTense read GetTense;
     property Person: TPerson read GetPerson;
     property Gender: TGender read GetGender;
-    property Dependencies[const AIndex: Integer]: IToken read GetDependencies;
+    property &Case: TCase read GetCase;
+    property Dependency: IToken read GetDependency;
+  end;
+
+  ISentence = interface
+    ['{FE12CEDF-AB5F-430A-979B-3DC5ED37FE43}']
+    function GetOffset: Integer;
+    function GetTokens(const AIndex: Integer): IToken;
+    function GetTokenCount: Integer;
+    property Offset: Integer read GetOffset;
+    property Tokens[const AIndex: Integer]: IToken read GetTokens;
+    property TokenCount: Integer read GetTokenCount;
   end;
 
   IResponse = interface
-    ['{FE12CEDF-AB5F-430A-979B-3DC5ED37FE43}']
-    function GetTokens(const AIndex: Integer): IToken;
-    property Tokens[const AIndex: Integer]: IToken read GetTokens;
+    ['{43A760A4-A572-484D-8425-954D62D34228}']
+    function GetSentences(const AIndex: Integer): ISentence;
+    function GetSentenceCount: Integer;
+    property Sentences[const AIndex: Integer]: ISentence read GetSentences;
+    property SentenceCount: Integer read GetSentenceCount;
   end;
 
   IGoogleCloudAPI = interface
@@ -111,7 +132,7 @@ end;
 function TTextTypeHelper.ToString: String;
 begin
   case Self of
-    ttPlainText:
+    ttPLAINTEXT:
       Result := 'PLAIN_TEXT';
   end;
 end;
@@ -252,6 +273,30 @@ begin
       Result := 'FEMININE';
     geNEUTER:
       Result := 'NEUTER';
+  end;
+end;
+
+{ TCaseHelper }
+
+constructor TCaseHelper.Create(const ACaseCode: String);
+begin
+  Self := TCase(IndexText(ACaseCode, ['CASE_UNKNOWN', 'AKKUSATIVE', 'DATIVE',
+    'GENITIVE', 'NOMINATIVE']));
+end;
+
+function TCaseHelper.ToString: String;
+begin
+  case Self of
+    csUNKNOWN:
+      Result := 'CASE_UNKNOWN';
+    csAKKUSATIVE:
+      Result := 'AKKUSATIVE';
+    csDATIVE:
+      Result := 'DATIVE';
+    csGENITIVE:
+      Result := 'GENITIVE';
+    csNOMINATIVE:
+      Result := 'NOMINATIVE';
   end;
 end;
 
