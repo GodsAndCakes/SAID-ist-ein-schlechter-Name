@@ -5,11 +5,13 @@ program pServer;
 {$R *.res}
 
 uses
-  System.SysUtils;
+  System.SysUtils,
+  Data.User.Preferences in 'Data.User.Preferences.pas',
+  Data.Articles in 'Data.Articles.pas';
 
 begin
   try
-    { TODO -oUser -cConsole Main : Code hier einfügen }
+
   except
     on E: Exception do
       Writeln(E.ClassName, ': ', E.Message);
