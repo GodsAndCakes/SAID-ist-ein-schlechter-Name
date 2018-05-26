@@ -7,7 +7,8 @@ uses
   System.SysUtils,
   Data.User.Preferences in 'Data.User.Preferences.pas',
   Data.Articles in 'Data.Articles.pas',
-  Backend.MARSServer in 'Backend.MARSServer.pas';
+  Backend.MARSServer in 'Backend.MARSServer.pas',
+  Backend.Resource in 'Backend.Resource.pas';
 
 var
   LServer: TBackendMARSServer;

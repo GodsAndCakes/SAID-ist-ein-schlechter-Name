@@ -29,7 +29,7 @@ begin
   FEngine := TMARSEngine.Create;
   FEngine.Port := 80;
   FEngine.ThreadPoolSize := 4;
-  // FEngine.AddApplication()
+  FEngine.AddApplication('SAID','/said',['Backend.Resource.*']);
   FServer := TMARSHTTPServerIndy.Create(FEngine);
   FServer.DefaultPort := FEngine.Port;
 end;
