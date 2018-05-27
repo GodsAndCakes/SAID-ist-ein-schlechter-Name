@@ -52,7 +52,8 @@ type
     FOffset: Integer;
     FTokens: TList<IToken>;
   public
-    constructor Create(AOffset: Integer; ATokens: TList<IToken>);
+    constructor Create;
+    destructor Destroy; override;
     function GetOffset: Integer;
     function GetTokenCount: Integer;
     function GetTokens(const AIndex: Integer): IToken;
@@ -124,8 +125,8 @@ function TGoogleConnector.ConvertJSONToGoogleArticle(ACaption: string;
   AJSONObject: TJSONObject): IGoogleArticle;
 var
   LCategoriesJSON, LSentencesJSON, LTokensJSON: TJSONArray;
-  LSentenceJSON: TJSONObject;
-  i, j: Integer;
+  LSentenceJSON, LTokenJSON: TJSONObject;
+  i, j, k, l, m: Integer;
 begin
   Result := TSAIDGoogleArticle.Create;
   (Result as TSAIDGoogleArticle).FCaption := ACaption;
@@ -133,31 +134,70 @@ begin
   // Read categories
   LCategoriesJSON := AJSONObject.Values['categories'] as TJSONArray;
   for i := 0 to LCategoriesJSON.Count - 1 do
-    (Result as TSAIDGoogleArticle).FCategories.Add(LCategoriesJSON.Items[i].Value);
+    (Result as TSAIDGoogleArticle).FCategories.Add
+      (LCategoriesJSON.Items[i].Value);
 
   (Result as TSAIDGoogleArticle) := TLanguage.laEN;
 
   // Read sentences and tokens
-  (Result as TSAIDGoogleArticle).F := 0;
-  LSentences := TList<ISentence>.Create;
   LSentencesJSON := AJSONObject.Values['sentences'] as TJSONArray;
-  LTokensJSON := AJSONObject.Values['tokens'] as TJSONArray;
+  j := 0;
   for i := 0 to LSentencesJSON.Count - 1 do
   begin
-    LSentenceJSON := LSentencesJSON.Items[i] as TJSONObject;
-    if i < LSentences.Count - 1 then
-      LOffset := (((LSentencesJSON.Items[i + 1] as TJSONObject).Values['text']
-        as TJSONObject).Values['beginOffset'] as TJSONNumber).Value.ToInteger
-    else
-      LOffset := LTokensJSON.Count - 1;
-    for j := LOldOffset to LOffset do
-
+    (Result as TSAIDGoogleArticle).FSentences.Add(TSAIDSentence.Create);
+    ((Result as TSAIDGoogleArticle).FSentences.Last as TSAIDSentence).FOffset :=
+      (((LSentencesJSON.Items[i] as TJSONObject).Values['text'] as TJSONObject)
+      .Values['beginOffset'] as TJSONNumber).Value.ToInteger;
   end;
-
-  // LSentiment := ;
-  LSource := TSource.scDPA;
-  Result := TSAIDGoogleArticle.Create(LCaption, LCategories, LLanguage,
-    LSentences, LSentiment, LSource);
+  j := 0;
+  LTokensJSON := AJSONObject.Values['tokens'] as TJSONArray;
+  for i := 0 to LTokensJSON.Count - 1 do
+  begin
+    while ((Result as TSAIDGoogleArticle).FSentences[j] as TSAIDSentence)
+      .FOffset <= (((LTokensJSON.Items[i] as TJSONObject).Values['text']
+      as TJSONObject).Values['beginOffset'] as TJSONNumber).Value.ToInteger do
+    begin
+      Inc(j);
+    end;
+    ((Result as TSAIDGoogleArticle).FSentences[j] as TSAIDSentence)
+      .FTokens.Add(TSAIDToken.Create);
+    (((Result as TSAIDGoogleArticle).FSentences[j] as TSAIDSentence)
+      .FTokens.Last as TSAIDToken).FOffset :=
+      (((LTokensJSON.Items[i] as TJSONObject).Values['text'] as TJSONObject)
+      .Values['beginOffset'] as TJSONNumber).Value.ToInteger;
+    (((Result as TSAIDGoogleArticle).FSentences[j] as TSAIDSentence)
+      .FTokens.Last as TSAIDToken).FText :=
+      (((LTokensJSON.Items[i] as TJSONObject).Values['text'] as TJSONObject)
+      .Values['content'] as TJSONString).Value;
+    (((Result as TSAIDGoogleArticle).FSentences[j] as TSAIDSentence)
+      .FTokens.Last as TSAIDToken).FTag :=
+      TTag.Create((((LTokensJSON.Items[i] as TJSONObject).Values['partOfSpeech']
+      as TJSONObject).Values['tag'] as TJSONString).Value);
+  end;
+  for i := 0 to (Result as TSAIDGoogleArticle).FSentences.Count - 1 do
+  begin
+    for j := 0 to ((Result as TSAIDGoogleArticle).FSentences[i]
+      as TSAIDSentence).FTokens.Count - 1 do
+    begin
+      k := 0;
+      for l := 0 to (Result as TSAIDGoogleArticle).FSentences.Count - 1 do
+      begin
+        for m := 0 to ((Result as TSAIDGoogleArticle).FSentences[i]
+          as TSAIDSentence).FTokens.Count - 1 do
+        begin
+          if k = (((LTokensJSON.Items[i] as TJSONObject).Values['dependencyEdge']
+            as TJSONObject).Values['headTokenIndex'] as TJSONNumber)
+            .Value.ToInteger then
+          begin
+            Exit;
+          end;
+          Inc(k);
+        end;
+      end;
+      (((Result as TSAIDGoogleArticle).FSentences[i] as TSAIDSentence)
+        .FTokens[j] as TSAIDToken).FDependency := Result.Sentences[l].Tokens[m];
+    end;
+  end;
 end;
 
 function TGoogleConnector.SendReqToGoogle(AAccessToken: string;
@@ -311,10 +351,16 @@ end;
 
 { TSAIDSentence }
 
-constructor TSAIDSentence.Create(AOffset: Integer; ATokens: TList<IToken>);
+constructor TSAIDSentence.Create;
 begin
-  FOffset := AOffset;
-  FTokens := ATokens;
+  inherited;
+  FTokens := TList<TSAIDToken>.Create;
+end;
+
+destructor TSAIDSentence.Destroy;
+begin
+  FTokens.Free;
+  inherited;
 end;
 
 function TSAIDSentence.GetOffset: Integer;
