@@ -73,9 +73,6 @@ type
     FText: string;
     FLemma: string;
   public
-    constructor Create(ACase: TCase; ADependency: IToken; AGender: TGender;
-      ALabel: TLabel; ANumber: TNumber; AOffset: Integer; APerson: TPerson;
-      ATag: TTag; ATense: TTense; AText: string; ALemma: string);
     function GetCase: TCase;
     function GetDependency: IToken;
     function GetGender: TGender;
@@ -137,7 +134,7 @@ begin
     (Result as TSAIDGoogleArticle).FCategories.Add
       (LCategoriesJSON.Items[i].Value);
 
-  (Result as TSAIDGoogleArticle) := TLanguage.laEN;
+  (Result as TSAIDGoogleArticle).FLanguage := TLanguage.laEN;
 
   // Read sentences and tokens
   LSentencesJSON := AJSONObject.Values['sentences'] as TJSONArray;
@@ -299,7 +296,7 @@ end;
 constructor TSAIDGoogleArticle.Create;
 begin
   FCategories := TStringList.Create;
-  FSentences := TList<TSAIDSentence>.Create;
+  FSentences := TList<ISentence>.Create;
 end;
 
 destructor TSAIDGoogleArticle.Destroy;
@@ -354,7 +351,7 @@ end;
 constructor TSAIDSentence.Create;
 begin
   inherited;
-  FTokens := TList<TSAIDToken>.Create;
+  FTokens := TList<IToken>.Create;
 end;
 
 destructor TSAIDSentence.Destroy;
@@ -379,23 +376,6 @@ begin
 end;
 
 { TSAIDToken }
-
-constructor TSAIDToken.Create(ACase: TCase; ADependency: IToken;
-  AGender: TGender; ALabel: TLabel; ANumber: TNumber; AOffset: Integer;
-  APerson: TPerson; ATag: TTag; ATense: TTense; AText, ALemma: string);
-begin
-  FCase := ACase;
-  FDependency := ADependency;
-  FGender := AGender;
-  FLabel := ALabel;
-  FNumber := ANumber;
-  FOffset := AOffset;
-  FPerson := APerson;
-  FTag := ATag;
-  FTense := ATense;
-  FText := AText;
-  FLemma := ALemma;
-end;
 
 function TSAIDToken.GetCase: TCase;
 begin
