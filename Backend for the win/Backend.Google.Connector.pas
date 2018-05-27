@@ -26,26 +26,26 @@ uses
 
 type
 
-  TSAIDGoogleArticle = class(TInterfacedObject, IGoogleArticle)
-  private
-    FCaption: string;
-    FCategories: TStringList;
-    FLanguage: TLanguage;
-    FSentences: TList<ISentence>;
-    FSentiment: TSentiment;
-    FSource: TSource;
-  public
-    constructor Create(ACaption: string; ACategories: TStringList;
-      ALanguage: TLanguage; ASentences: TList<ISentence>;
-      ASentiment: TSentiment; ASource: TSource);
-    function GetCaption: string;
-    function GetCategories(const AIndex: Integer): string;
-    function GetCategoryCount: Integer;
-    function GetLanguage: TLanguage;
-    function GetSentenceCount: Integer;
-    function GetSentences(const AIndex: Integer): ISentence;
-    function GetSentiment: TSentiment;
-    function GetSource: TSource;
+   TSAIDGoogleArticle = class(TInterfacedObject, IGoogleArticle)
+   private
+     FCaption: string;
+     FCategories: TStringList;
+     FLanguage: TLanguage;
+     FSentences: TList<ISentence>;
+     FSentiment: TSentiment;
+     FSource: TSource;
+   public
+     constructor Create(ACaption: string; ACategories: TStringList;
+       ALanguage: TLanguage; ASentences: TList<ISentence>;
+       ASentiment: TSentiment; ASource: TSource);
+     function GetCaption: string;
+     function GetCategories(const AIndex: Integer): string;
+     function GetCategoryCount: Integer;
+     function GetLanguage: TLanguage;
+     function GetSentenceCount: Integer;
+     function GetSentences(const AIndex: Integer): ISentence;
+     function GetSentiment: TSentiment;
+     function GetSource: TSource;
   end;
 
   TGoogleConnector = class
@@ -93,7 +93,7 @@ begin
   LCaption := ACaption;
   LCategories :=
   Result := TSAIDGoogleArticle.Create(LCaption, LCategories, LLanguage,
-    LSentences, LSentiment, LSource);
+  LSentences, LSentiment, LSource);
 end;
 
 function TGoogleConnector.SendReqToGoogle(AAccessToken: string;

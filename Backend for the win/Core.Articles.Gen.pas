@@ -76,14 +76,15 @@ var
   Article: IGoogleArticle absolute AGoogleArticle;
   Index: Integer;
 
-  function FindToken(const ADependency: IToken): TArray<IToken>;
+  function FindTokens(const ADependency: IToken; const ALabel: TLabel)
+    : TArray<IToken>;
   var
     TokenIndex: Integer;
   begin
     for TokenIndex := 0 to Pred(Article.Sentences[Index].TokenCount) do
     begin
-      if Article.Sentences[Index].Tokens[TokenIndex].Dependency = ADependency
-      then
+      if (Article.Sentences[Index].Tokens[TokenIndex].Dependency = ADependency)
+        and (Article.Sentences[Index].Tokens[TokenIndex].&Label = ALabel) then
       begin
         Result := Concat(Result, [Article.Sentences[Index].Tokens[TokenIndex]]);
       end;
@@ -93,20 +94,39 @@ var
   function Build(const ATokens: TArray<IToken>): String;
   var
     Current: IToken;
-
-
   begin
     for Current in ATokens do
     begin
-      if not Assigned(Current.Dependency) then
-      begin
-        // Root token
-        //Result := Concat(Build(FindToken(
-      end else
-      begin
-        // No root token
-
+      case Current.&Label of
+        laNSUBJ,
+        laDOBJ,
+        laPOBJ,
+        laATTR:
+          // Articles + Adverbs
+          Result := Concat(Build(FindTokens(Current, laDET)),
+            Build(FindTokens(Current, laAMOD)), Current.Text);
+        laROOT:
+          // Subjects + Adverbs + D.Objects + Attribs + Punctations
+          Result := Concat(Build(FindTokens(Current, laNSUBJ)),
+            Build(FindTokens(Current, laADVMOD)), Current.Text,
+            Build(FindTokens(Current, laDOBJ)),
+            Build(FindTokens(Current, laATTR)),
+            Build(FindTokens(Current, laP)));
+        laPREP:
+          // P.Objects
+          Result := Concat(Current.Text, Build(FindTokens(Current, laPOBJ)));
+        laP,
+        laDET,
+        laADVMOD:
+          Result := Current.Text;
+        laAMOD:
+          // Adverbs
+          Result := Concat(Build(FindTokens(Current, laADVMOD)), Current.Text);
       end;
+    end;
+    if not Result.IsEmpty then
+    begin
+      Result := Concat(Result, ' ');
     end;
   end;
 
@@ -121,8 +141,9 @@ begin
   end;
   for Index := 0 to Pred(Article.SentenceCount) do
   begin
-    FText := Concat(FText, Build(FindToken(nil)));
+    FText := Concat(FText, Build(FindTokens(nil, laROOT)));
   end;
+  FText[Low(FText)] := UpCase(FText[Low(FText)]);
 end;
 
 end.

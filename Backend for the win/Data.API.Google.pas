@@ -28,7 +28,8 @@ type
     function ToString: String;
   end;
 
-  TLabel = (laNSUBJ, taDOBJ, taROOT, laP, laDET, laAMOD, laADVMOD);
+  TLabel = (laUNKNOWN, laNSUBJ, laDOBJ, laPOBJ, laATTR, laROOT, laPREP, laP,
+    laDET, laAMOD, laADVMOD);
 
   TLabelHelper = record helper for TLabel
     constructor Create(const ALabelCode: String);
@@ -116,8 +117,10 @@ type
     function GetSentiment: TSentiment;
     function GetCategories(const AIndex: Integer): String;
     function GetCategoryCount: Integer;
-    property Caption: String read GetCaption; // MUST BE LOADED FROM iPOOL RESPONSE!
-    property Source: TSource read GetSource; // MUST BE LOADED FROM iPOOL RESPONSE!
+    property Caption: String read GetCaption;
+    // MUST BE LOADED FROM iPOOL RESPONSE!
+    property Source: TSource read GetSource;
+    // MUST BE LOADED FROM iPOOL RESPONSE!
     property Sentences[const AIndex: Integer]: ISentence read GetSentences;
     property SentenceCount: Integer read GetSentenceCount;
     property Language: TLanguage read GetLanguage;
@@ -191,19 +194,27 @@ end;
 
 constructor TLabelHelper.Create(const ALabelCode: String);
 begin
-  Self := TLabel(IndexText(ALabelCode, ['NSUBJ', 'DOBJ', 'ROOT', 'P', 'DET',
-    'AMOD', 'ADVMOD']));
+  Self := TLabel(IndexText(ALabelCode, ['UNKNOWN', 'NSUBJ', 'DOBJ', 'POBJ',
+    'ATTR', 'ROOT', 'PREP', 'P', 'DET', 'AMOD', 'ADVMOD']));
 end;
 
 function TLabelHelper.ToString: String;
 begin
   case Self of
+    laUNKNOWN:
+      Result := 'UNKNOWN';
     laNSUBJ:
       Result := 'NSUBJ';
-    taDOBJ:
+    laDOBJ:
       Result := 'DOBJ';
-    taROOT:
+    laPOBJ:
+      Result := 'POBJ';
+    laATTR:
+      Result := 'ATTR';
+    laROOT:
       Result := 'ROOT';
+    laPREP:
+      Result := 'PREP';
     laP:
       Result := 'P';
     laDET:
