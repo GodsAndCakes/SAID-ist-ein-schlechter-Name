@@ -85,7 +85,7 @@ var
       if Article.Sentences[Index].Tokens[TokenIndex].Dependency = ADependency
       then
       begin
-        Result := Concat(Result, Article.Sentences[Index].Tokens[TokenIndex]);
+        Result := Concat(Result, [Article.Sentences[Index].Tokens[TokenIndex]]);
       end;
     end;
   end;
@@ -101,7 +101,7 @@ var
       if not Assigned(Current.Dependency) then
       begin
         // Root token
-        Result := Concat(Build(FindToken(
+        //Result := Concat(Build(FindToken(
       end else
       begin
         // No root token
