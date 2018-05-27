@@ -3,7 +3,7 @@ unit Data.API.Google;
 interface
 
 uses
-  System.StrUtils;
+  System.StrUtils, Data.Articles;
 
 type
   TTextType = (ttPLAINTEXT);
@@ -106,18 +106,38 @@ type
     property TokenCount: Integer read GetTokenCount;
   end;
 
-  IResponse = interface
-    ['{43A760A4-A572-484D-8425-954D62D34228}']
+  IGoogleArticle = interface
+    ['{0C06D550-31BB-45C2-A5A1-F9DE920C089F}']
+    function GetCaption: String;
+    function GetSource: TSource;
     function GetSentences(const AIndex: Integer): ISentence;
     function GetSentenceCount: Integer;
+    function GetLanguage: TLanguage;
+    function GetSentiment: TSentiment;
+    function GetCategories(const AIndex: Integer): String;
+    function GetCategoryCount: Integer;
+    property Caption: String read GetCaption; // MUST BE LOADED FROM iPOOL RESPONSE!
+    property Source: TSource read GetSource; // MUST BE LOADED FROM iPOOL RESPONSE!
     property Sentences[const AIndex: Integer]: ISentence read GetSentences;
     property SentenceCount: Integer read GetSentenceCount;
+    property Language: TLanguage read GetLanguage;
+    property Sentiment: TSentiment read GetSentiment;
+    property Categories[const AIndex: Integer]: String read GetCategories;
+    property CategoryCount: Integer read GetCategoryCount;
+  end;
+
+  IGoogleArticles = interface
+    ['{F56CB0F1-9D1B-4CB2-8C91-9FB24F1E1EE9}']
+    function GetArticles(const AIndex: Integer): IGoogleArticle;
+    function GetCount: Integer;
+    property Articles[const AIndex: Integer]: IGoogleArticle read GetArticles;
+    property Count: Integer read GetCount;
   end;
 
   IGoogleCloudAPI = interface
     ['{D5EFA4BC-47A7-4117-B7A6-C3C60238662D}']
-    function GetQuery(const AQuery: IQuery): IResponse;
-    property Query[const AQuery: IQuery]: IResponse read GetQuery;
+    function GetQuery(const AQuery: IQuery): IGoogleArticle;
+    property Query[const AQuery: IQuery]: IGoogleArticle read GetQuery;
   end;
 
 implementation

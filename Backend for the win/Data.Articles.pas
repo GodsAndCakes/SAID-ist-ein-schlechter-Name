@@ -27,30 +27,6 @@ type
     function ToDouble: Double;
   end;
 
-  IGoogleArticle = interface
-    ['{0C06D550-31BB-45C2-A5A1-F9DE920C089F}']
-    function GetCaption: String;
-    function GetSource: TSource;
-    function GetLanguage: TLanguage;
-    function GetSentiment: TSentiment;
-    function GetCategories(const AIndex: Integer): String;
-    function GetCategoryCount: Integer;
-    property Caption: String read GetCaption;
-    property Source: TSource read GetSource;
-    property Language: TLanguage read GetLanguage;
-    property Sentiment: TSentiment read GetSentiment;
-    property Categories[const AIndex: Integer]: String read GetCategories;
-    property CategoryCount: Integer read GetCategoryCount;
-  end;
-
-  IGoogleArticles = interface
-    ['{F56CB0F1-9D1B-4CB2-8C91-9FB24F1E1EE9}']
-    function GetArticles(const AIndex: Integer): IGoogleArticle;
-    function GetCount: Integer;
-    property Articles[const AIndex: Integer]: IGoogleArticle read GetArticles;
-    property Count: Integer read GetCount;
-  end;
-
   IiPoolArticle = interface
     ['{07129344-C577-499D-BAFD-031052A6633F}']
     function GetHeading: String;

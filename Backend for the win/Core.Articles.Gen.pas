@@ -3,7 +3,7 @@ unit Core.Articles.Gen;
 interface
 
 uses
-  System.SysUtils, System.Classes, Data.Articles;
+  System.SysUtils, System.Classes, Data.API.Google;
 
 type
   IArticle = interface
@@ -73,8 +73,44 @@ end;
 
 procedure TArticle.LoadFromGoogleArticle(const AGoogleArticle: IGoogleArticle);
 var
-  Index: Integer;
   Article: IGoogleArticle absolute AGoogleArticle;
+  Index: Integer;
+
+  function FindToken(const ADependency: IToken): TArray<IToken>;
+  var
+    TokenIndex: Integer;
+  begin
+    for TokenIndex := 0 to Pred(Article.Sentences[Index].TokenCount) do
+    begin
+      if Article.Sentences[Index].Tokens[TokenIndex].Dependency = ADependency
+      then
+      begin
+        Result := Concat(Result, Article.Sentences[Index].Tokens[TokenIndex]);
+      end;
+    end;
+  end;
+
+  function Build(const ATokens: TArray<IToken>): String;
+  var
+    Current: IToken;
+
+
+  begin
+    for Current in ATokens do
+    begin
+      if not Assigned(Current.Dependency) then
+      begin
+        // Root token
+        Result := Concat(Build(FindToken(
+      end else
+      begin
+        // No root token
+
+      end;
+    end;
+  end;
+
+var
   Category: TArray<String>;
 begin
   FCaption := Article.Caption;
@@ -82,6 +118,10 @@ begin
   begin
     Category := Article.Categories[Index].Split(['/'], '"');
     FCategories.Add(Category[Low(Category)]);
+  end;
+  for Index := 0 to Pred(Article.SentenceCount) do
+  begin
+    FText := Concat(FText, Build(FindToken(nil)));
   end;
 end;
 

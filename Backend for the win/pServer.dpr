@@ -12,9 +12,9 @@ uses
   Data.API.iPool in 'Data.API.iPool.pas',
   Data.API.Google in 'Data.API.Google.pas',
   Core.Articles.Gen in 'Core.Articles.Gen.pas',
-  Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule} ,
+  Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule},
   Backend.iPool.Connector in 'Backend.iPool.Connector.pas',
-  Core.Articles.MetaInfo in 'Core.Articles.MetaInfo.pas';
+  Core.Articles.Template in 'Core.Articles.Template.pas';
 
 var
   LServer: TBackendMARSServer;
