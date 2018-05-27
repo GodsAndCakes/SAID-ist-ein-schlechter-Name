@@ -26,34 +26,74 @@ uses
 
 type
 
-   TSAIDGoogleArticle = class(TInterfacedObject, IGoogleArticle)
-   private
-     FCaption: string;
-     FCategories: TStringList;
-     FLanguage: TLanguage;
-     FSentences: TList<ISentence>;
-     FSentiment: TSentiment;
-     FSource: TSource;
-   public
-     constructor Create(ACaption: string; ACategories: TStringList;
-       ALanguage: TLanguage; ASentences: TList<ISentence>;
-       ASentiment: TSentiment; ASource: TSource);
-     function GetCaption: string;
-     function GetCategories(const AIndex: Integer): string;
-     function GetCategoryCount: Integer;
-     function GetLanguage: TLanguage;
-     function GetSentenceCount: Integer;
-     function GetSentences(const AIndex: Integer): ISentence;
-     function GetSentiment: TSentiment;
-     function GetSource: TSource;
+  TSAIDGoogleArticle = class(TInterfacedObject, IGoogleArticle)
+  private
+    FCaption: string;
+    FCategories: TStringList;
+    FLanguage: TLanguage;
+    FSentences: TList<ISentence>;
+    FSentiment: TSentiment;
+    FSource: TSource;
+  public
+    constructor Create;
+    destructor Destroy; override;
+    function GetCaption: string;
+    function GetCategories(const AIndex: Integer): string;
+    function GetCategoryCount: Integer;
+    function GetLanguage: TLanguage;
+    function GetSentenceCount: Integer;
+    function GetSentences(const AIndex: Integer): ISentence;
+    function GetSentiment: TSentiment;
+    function GetSource: TSource;
+  end;
+
+  TSAIDSentence = class(TInterfacedObject, ISentence)
+  private
+    FOffset: Integer;
+    FTokens: TList<IToken>;
+  public
+    constructor Create(AOffset: Integer; ATokens: TList<IToken>);
+    function GetOffset: Integer;
+    function GetTokenCount: Integer;
+    function GetTokens(const AIndex: Integer): IToken;
+  end;
+
+  TSAIDToken = class(TInterfacedObject, IToken)
+  private
+    FCase: TCase;
+    FDependency: IToken;
+    FGender: TGender;
+    FLabel: TLabel;
+    FNumber: TNumber;
+    FOffset: Integer;
+    FPerson: TPerson;
+    FTag: TTag;
+    FTense: TTense;
+    FText: string;
+    FLemma: string;
+  public
+    constructor Create(ACase: TCase; ADependency: IToken; AGender: TGender;
+      ALabel: TLabel; ANumber: TNumber; AOffset: Integer; APerson: TPerson;
+      ATag: TTag; ATense: TTense; AText: string; ALemma: string);
+    function GetCase: TCase;
+    function GetDependency: IToken;
+    function GetGender: TGender;
+    function GetLabel: TLabel;
+    function GetNumber: TNumber;
+    function GetOffset: Integer;
+    function GetPerson: TPerson;
+    function GetTag: TTag;
+    function GetTense: TTense;
+    function GetText: string;
+    function GetLemma: string;
   end;
 
   TGoogleConnector = class
   private
     function SendReqToGoogle(AAccessToken: string; AArticles: IiPoolArticles)
       : TJSONObject;
-    function ConvertJSONToGoogleArticle(ACaption: string; AJSONObject: TJSONObject)
-      : IGoogleArticle;
+    function ConvertJSONToGoogleArticle(ACaption: string;
+      AJSONObject: TJSONObject): IGoogleArticle;
   public
     function AnalyzeArticles(AInput: IiPoolArticles): IArticle;
   end;
@@ -77,23 +117,47 @@ begin
   LJWT := LTokenGenerator.GenerateJWT;
   LAccessToken := LTokenGenerator.GenerateAccessToken(LJWT);
   FreeAndNil(LTokenGenerator);
-
+  SendReqToGoogle(LAccessToken, AInput);
 end;
 
-function TGoogleConnector.ConvertJSONToGoogleArticle(ACaption: string; AJSONObject: TJSONObject)
-      : IGoogleArticle;
+function TGoogleConnector.ConvertJSONToGoogleArticle(ACaption: string;
+  AJSONObject: TJSONObject): IGoogleArticle;
 var
-  LCaption: string;
-  LCategories: TStringList;
-  LLanguage: TLanguage;
-  LSentences: TList<ISentence>;
-  LSentiment: TSentiment;
-  LSource: TSource;
+  LCategoriesJSON, LSentencesJSON, LTokensJSON: TJSONArray;
+  LSentenceJSON: TJSONObject;
+  i, j: Integer;
 begin
-  LCaption := ACaption;
-  LCategories :=
+  Result := TSAIDGoogleArticle.Create;
+  (Result as TSAIDGoogleArticle).FCaption := ACaption;
+
+  // Read categories
+  LCategoriesJSON := AJSONObject.Values['categories'] as TJSONArray;
+  for i := 0 to LCategoriesJSON.Count - 1 do
+    (Result as TSAIDGoogleArticle).FCategories.Add(LCategoriesJSON.Items[i].Value);
+
+  (Result as TSAIDGoogleArticle) := TLanguage.laEN;
+
+  // Read sentences and tokens
+  (Result as TSAIDGoogleArticle).F := 0;
+  LSentences := TList<ISentence>.Create;
+  LSentencesJSON := AJSONObject.Values['sentences'] as TJSONArray;
+  LTokensJSON := AJSONObject.Values['tokens'] as TJSONArray;
+  for i := 0 to LSentencesJSON.Count - 1 do
+  begin
+    LSentenceJSON := LSentencesJSON.Items[i] as TJSONObject;
+    if i < LSentences.Count - 1 then
+      LOffset := (((LSentencesJSON.Items[i + 1] as TJSONObject).Values['text']
+        as TJSONObject).Values['beginOffset'] as TJSONNumber).Value.ToInteger
+    else
+      LOffset := LTokensJSON.Count - 1;
+    for j := LOldOffset to LOffset do
+
+  end;
+
+  // LSentiment := ;
+  LSource := TSource.scDPA;
   Result := TSAIDGoogleArticle.Create(LCaption, LCategories, LLanguage,
-  LSentences, LSentiment, LSource);
+    LSentences, LSentiment, LSource);
 end;
 
 function TGoogleConnector.SendReqToGoogle(AAccessToken: string;
@@ -103,7 +167,7 @@ var
   LJSONReq: TJSONObject;
   LObj, LFeat: TJSONObject;
   HTTPClient: TNetHTTPClient;
-  LOutputString: TStream;
+  LOutputStream: TStream;
   LHeaders: TNetHeaders;
   LOutputJSON: TJSONObject;
   LStreamReader: TStreamReader;
@@ -112,7 +176,7 @@ var
 begin
   HTTPClient := TNetHTTPClient.Create(nil);
   LJSONReq := TJSONObject.Create;
-  LJSONReq.AddPair('encoding', 'UTF8');
+  LJSONReq.AddPair('encodingType', 'UTF8');
   LObj := TJSONObject.Create;
   LObj.AddPair('type', 'PLAIN_TEXT');
   LJSONReq.AddPair('document', LObj);
@@ -125,17 +189,17 @@ begin
   LHeaders[0].Name := 'Authorization';
   for i := 0 to AArticles.Count - 1 do
   begin
-    LOutputString := TStringStream.Create;
+    LOutputStream := TStringStream.Create;
     LObj.AddPair('content', AArticles.Articles[i].Content);
-    HTTPClient.Post
-      ('https://language.googleapis.com/v1/documents:analyzeSyntax',
-      TStringStream.Create(LJSONReq.ToString), LOutputString, LHeaders);
-    LStreamReader := TStreamReader.Create(LOutputString);
+    HTTPClient.Post('https://language.googleapis.com/v1/documents:annotateText',
+      TStringStream.Create(LJSONReq.ToString), LOutputStream, LHeaders);
+    LStreamReader := TStreamReader.Create(LOutputStream);
     LOutputJSON := TJSONObject.ParseJSONValue(LStreamReader.ReadToEnd)
       as TJSONObject;
     FreeAndNil(LStreamReader);
-    FreeAndNil(LOutputString);
-    LGarticle := ConvertJSONToGoogleArticle(LOutputJSON);
+    FreeAndNil(LOutputStream);
+    LGarticle := ConvertJSONToGoogleArticle(AArticles.Articles[i].Heading,
+      LOutputJSON);
     LArticle := TArticle.Create(LGarticle);
   end;
 end;
@@ -188,6 +252,158 @@ begin
   LJWS := TJWS.Create(LToken);
   LJWS.Sign(LKey, TJOSEAlgorithmId.RS256);
   Result := LJWS.CompactToken;
+end;
+
+{ TSAIDGoogleArticle }
+
+constructor TSAIDGoogleArticle.Create;
+begin
+  FCategories := TStringList.Create;
+  FSentences := TList<TSAIDSentence>.Create;
+end;
+
+destructor TSAIDGoogleArticle.Destroy;
+begin
+  FCategories.Free;
+  FSentences.Free;
+  inherited;
+end;
+
+function TSAIDGoogleArticle.GetCaption: string;
+begin
+  Result := FCaption;
+end;
+
+function TSAIDGoogleArticle.GetCategories(const AIndex: Integer): string;
+begin
+  Result := FCategories[AIndex];
+end;
+
+function TSAIDGoogleArticle.GetCategoryCount: Integer;
+begin
+  Result := FCategories.Count;
+end;
+
+function TSAIDGoogleArticle.GetLanguage: TLanguage;
+begin
+  Result := FLanguage;
+end;
+
+function TSAIDGoogleArticle.GetSentenceCount: Integer;
+begin
+  Result := FSentences.Count;
+end;
+
+function TSAIDGoogleArticle.GetSentences(const AIndex: Integer): ISentence;
+begin
+  Result := FSentences[AIndex];
+end;
+
+function TSAIDGoogleArticle.GetSentiment: TSentiment;
+begin
+  Result := FSentiment;
+end;
+
+function TSAIDGoogleArticle.GetSource: TSource;
+begin
+  Result := FSource;
+end;
+
+{ TSAIDSentence }
+
+constructor TSAIDSentence.Create(AOffset: Integer; ATokens: TList<IToken>);
+begin
+  FOffset := AOffset;
+  FTokens := ATokens;
+end;
+
+function TSAIDSentence.GetOffset: Integer;
+begin
+  Result := FOffset;
+end;
+
+function TSAIDSentence.GetTokenCount: Integer;
+begin
+  Result := FTokens.Count;
+end;
+
+function TSAIDSentence.GetTokens(const AIndex: Integer): IToken;
+begin
+  Result := FTokens[AIndex];
+end;
+
+{ TSAIDToken }
+
+constructor TSAIDToken.Create(ACase: TCase; ADependency: IToken;
+  AGender: TGender; ALabel: TLabel; ANumber: TNumber; AOffset: Integer;
+  APerson: TPerson; ATag: TTag; ATense: TTense; AText, ALemma: string);
+begin
+  FCase := ACase;
+  FDependency := ADependency;
+  FGender := AGender;
+  FLabel := ALabel;
+  FNumber := ANumber;
+  FOffset := AOffset;
+  FPerson := APerson;
+  FTag := ATag;
+  FTense := ATense;
+  FText := AText;
+  FLemma := ALemma;
+end;
+
+function TSAIDToken.GetCase: TCase;
+begin
+  Result := FCase;
+end;
+
+function TSAIDToken.GetDependency: IToken;
+begin
+  Result := FDependency;
+end;
+
+function TSAIDToken.GetGender: TGender;
+begin
+  Result := FGender;
+end;
+
+function TSAIDToken.GetLabel: TLabel;
+begin
+  Result := FLabel;
+end;
+
+function TSAIDToken.GetLemma: string;
+begin
+  Result := FLemma;
+end;
+
+function TSAIDToken.GetNumber: TNumber;
+begin
+  Result := FNumber;
+end;
+
+function TSAIDToken.GetOffset: Integer;
+begin
+  Result := FOffset;
+end;
+
+function TSAIDToken.GetPerson: TPerson;
+begin
+  Result := FPerson;
+end;
+
+function TSAIDToken.GetTag: TTag;
+begin
+  Result := FTag;
+end;
+
+function TSAIDToken.GetTense: TTense;
+begin
+  Result := FTense;
+end;
+
+function TSAIDToken.GetText: string;
+begin
+  Result := FText;
 end;
 
 end.
