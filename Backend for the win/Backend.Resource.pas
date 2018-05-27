@@ -9,7 +9,12 @@ uses
 
   Data.User.Preferences,
   Data.Articles,
+  Data.API.Google,
+
+  Core.Articles.Gen,
+
   Backend.iPool.Connector,
+  Backend.Google.Connector,
 
   MARS.Core.Registry,
   MARS.Core.Attributes,
@@ -30,7 +35,7 @@ type
 
   TSAIDPreferences = class(TinterfacedObject, IPreferences)
   private
-    FPreferences : TStringList;
+    FPreferences: TStringList;
   public
     constructor Create(APref: TStringList);
     function GetFavourable(const AKeyword: String): Boolean;
@@ -55,27 +60,25 @@ var
   LPreferences: IPreferences;
   iPoolConnector: TSAIDiPoolConnector;
   LiPoolArticles: IiPoolArticles;
+  LGoogleConnector: TGoogleConnector;
+  LArticle: IArticle;
   LArr: TJSONArray;
-  LObj: TJSONObject;
-  LArticle: IiPoolArticle;
   i: integer;
 begin
   LPreferences := TConverterToPrefrences.Convert(AData);
   iPoolConnector := TSAIDiPoolConnector.Create;
   LiPoolArticles := iPoolConnector.GetArticles(LPreferences);
   FreeAndNil(iPoolConnector);
+  LGoogleConnector := TGoogleConnector.Create;
+  LArticle := LGoogleConnector.AnalyzeArticles(LiPoolArticles);
+  FreeAndNil(LGoogleConnector);
   Result := TJSONObject.Create;
+  Result.AddPair('heading', LArticle.Caption);
+  Result.AddPair('content', LArticle.Text);
   LArr := TJSONArray.Create;
-  Result.AddPair('lolbjects',LArr);
-  for i:=0 to LiPoolArticles.Count-1 do
-  begin
-    LArticle := LiPoolArticles.Articles[i];
-    LObj := TJSONObject.Create;
-    LObj.AddPair('heading',LArticle.Heading);
-    LObj.AddPair('content',LArticle.Content);
-    LObj.AddPair('publisher',LArticle.Publisher);
-    LArr.AddElement(LObj);
-  end;
+  for i := 0 to LArticle.CategoryCount - 1 do
+    LArr.AddElement(TJSONString.Create(LArticle.Categories[i]));
+  Result.AddPair('categories', LArr);
 end;
 
 { TConverterToPrefrences }

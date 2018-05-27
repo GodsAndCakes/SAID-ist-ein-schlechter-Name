@@ -14,7 +14,7 @@ uses
   Core.Articles.Gen in 'Core.Articles.Gen.pas',
   Backend.iPool.DM in 'Backend.iPool.DM.pas' {DMiPool: TDataModule},
   Backend.iPool.Connector in 'Backend.iPool.Connector.pas',
-  Core.Articles.Template in 'Core.Articles.Template.pas';
+  Backend.Google.Connector in 'Backend.Google.Connector.pas';
 
 var
   LServer: TBackendMARSServer;
